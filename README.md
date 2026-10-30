@@ -22,11 +22,6 @@ npm run package    # build release/AgentActivity/AgentActivity.exe
 
 ## Release
 
-Push a version tag; the `Release` workflow builds the exe and publishes it under Releases:
-
-```
-git tag v0.2.0
-git push origin v0.2.0
-```
-
-The workflow can also be started manually from the Actions tab with a version number.
+Every push to `main` runs the `Release` workflow: it builds the exe and publishes a new release under Releases.
+The version is `major.minor` from `package.json` plus the run number (e.g. `v0.1.7`); edit `version` in
+`package.json` to bump major/minor. Docs-only (`*.md`) pushes are skipped.

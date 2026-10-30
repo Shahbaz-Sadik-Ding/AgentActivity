@@ -1,17 +1,20 @@
 name: Release
 
-# Push a tag like v0.2.0 to build the Windows app and publish it under Releases.
+# Every push to main builds the Windows app and publishes a new GitHub Release.
+# Version = major.minor from package.json + the workflow run number as patch (e.g. 0.1.7).
+# Bump major/minor by editing "version" in package.json.
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+    paths-ignore: ['**.md']
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to release, e.g. 0.2.0 (a tag v<version> is created)'
-        required: true
 
 permissions:
   contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -28,12 +31,8 @@ jobs:
         id: ver
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            V="${{ github.event.inputs.version }}"
-          else
-            V="${GITHUB_REF_NAME#v}"
-          fi
-          echo "version=$V" >> "$GITHUB_OUTPUT"
+          BASE=$(node -p "require('./package.json').version.split('.').slice(0,2).join('.')")
+          echo "version=$BASE.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
 
       - run: npm ci
 
