@@ -1,0 +1,34 @@
+{
+  "name": "agentactivity",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local AI usage monitor and live agent activity (dashboard + notch)",
+  "main": "out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "scan": "tsx scripts/scan.ts",
+    "test:live": "tsx scripts/e2e-live.mts",
+    "package": "electron-vite build && tsx scripts/package.mts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^45.1.0",
+    "electron-vite": "^6.0.0",
+    "rcedit": "^5.0.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  },
+  "dependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}

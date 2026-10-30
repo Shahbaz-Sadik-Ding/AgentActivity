@@ -1,0 +1,59 @@
+name: Release
+
+# Push a tag like v0.2.0 to build the Windows app and publish it under Releases.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release, e.g. 0.2.0 (a tag v<version> is created)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Resolve version
+        id: ver
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            V="${{ github.event.inputs.version }}"
+          else
+            V="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+
+      - run: npm ci
+
+      # Stamp the exe with the release version.
+      - run: npm version ${{ steps.ver.outputs.version }} --no-git-tag-version --allow-same-version
+
+      - run: npm run typecheck
+      - run: npm run package
+
+      - name: Zip
+        shell: pwsh
+        run: Compress-Archive -Path release/AgentActivity -DestinationPath "AgentActivity-v${{ steps.ver.outputs.version }}-win-x64.zip"
+
+      - name: Publish release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.ver.outputs.version }}" \
+            "AgentActivity-v${{ steps.ver.outputs.version }}-win-x64.zip" \
+            --target "${{ github.sha }}" \
+            --title "Agent Activity v${{ steps.ver.outputs.version }}" \
+            --generate-notes
